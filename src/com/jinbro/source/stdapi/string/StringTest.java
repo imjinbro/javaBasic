@@ -118,5 +118,12 @@ public class StringTest {
         System.out.println(trans);
 
 
+        //split : 문자열을 정규표현식 기준으로 쪼갬, 새로운 String 배열 리턴
+        String target = "가&나,다,라,마-바";
+        String[] result = target.split("&|,|-");
+
+        for(String word : result){
+            System.out.println(word);
+        }
     }
 }

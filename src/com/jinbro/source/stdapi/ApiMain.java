@@ -79,11 +79,46 @@
     5) java.lang.String
     - char[]를 래핑
     - immutable Object : 힙영역에 1번 생성되면 값을 변경할 수 없음
-    => 힙 영역에서 변경이 불가하다는 것, 리플렉션 제외
+    => 힙 영역에서 변경이 불가하다는 것 : 최적화(같은 문자열 == 같은 객체 - 공유), 안전성
     => 새로운 객체를 생성해서 참조 객체주소값을 변경하는 것
     => 보통 final 클래스로 선언 : 상속해서 Immutable 속성을 없애버릴 수도 있음
 
     - Charset 신경쓰기 : UTF-8, EUC-KR에 따라 한글 인코딩 길이가 다름
+
+
+
+
+    6) java.util.StringTokenizer
+    - String의 유틸리티
+    - 정규표현식이 아닌 특정 delimiter를 기준으로 문자열을 분할 유틸리티
+    (코드)
+
+
+    7) java.lang.StringBuffer, java.lang.StringBuilder
+    - String
+    (1) immutable Object : 같은 문자열이면서 각각 객체가 생성된다면 메모리 손실(그래서 immutable 이라는데 설계 이유 더 찾아보기)
+    (2) 변경 작업이 많다면 String 인스턴스를 그만큼 생성함 : 메모리 손실
+
+    - StringBuffer
+    (1) String처럼 문자열 일부 변경 요청에 변경한 결과를 새로운 문자열을 만들어 리턴하지않음
+    (2) 내부 버퍼(내부 코드를 보면 char[capacity] 인스턴스 생성할 때 크기 지정가능)에 문자열을 저장해두고 내부에서 변경작업을 함
+    - Buffer나 Builder나 자동적으로 버퍼사이즈를 늘림 : 같은 AbstractStringBuilder를 상속받고있음
+
+    (3) 버퍼란
+    - 두 개체 사이의 완충재 역할 : 완충기억장치
+    - 임시 저장 공간 : 사이즈가 한정되어있음
+    - FIFO 구조(큐) : 먼저 들어온 데이터가 먼저 나감
+
+    (4) StringBuffer의 메서드는 synchronized 처리 - 동기화 처리, 멀티쓰레드에 안전(쓰레드 공부하면서 이해해보도록 합시다)
+
+    - StringBuilder
+    (1) StringBuffer와 사용방식, 내부구조는 같음
+    (2) 멀티쓰레드에 안전한지 그렇지 않은지 차이 : 멀티쓰레드 환경이라면 StringBuffer를, 싱글쓰레드 환경이라면 StringBuilder
+
+
+
+
+
 
 
 */

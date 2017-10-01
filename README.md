@@ -4,6 +4,13 @@
 기본 문법, 알아둬야할 점들을 공부하고 테스트한 내용을 커밋합니다
 
 
+## Java의 프로그래밍 패러다임
+````
+설명
+````
+
+##
+
 ## 참고자료
 
 * [java8 spec](http://docs.oracle.com/javase/specs/jls/se8/html/index.html) - 자바8 스펙 명세, 9은 아직까지....

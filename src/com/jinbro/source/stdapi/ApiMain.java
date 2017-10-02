@@ -86,8 +86,6 @@
     - Charset 신경쓰기 : UTF-8, EUC-KR에 따라 한글 인코딩 길이가 다름
 
 
-
-
     6) java.util.StringTokenizer
     - String의 유틸리티
     - 정규표현식이 아닌 특정 delimiter를 기준으로 문자열을 분할 유틸리티
@@ -116,6 +114,21 @@
     (2) 멀티쓰레드에 안전한지 그렇지 않은지 차이 : 멀티쓰레드 환경이라면 StringBuffer를, 싱글쓰레드 환경이라면 StringBuilder
 
 
+    8) java.util.regex.Pattern
+    - 정규표현식과 관련한 처리를 할 수 있는 유틸리티 클래스
+
+
+    9) java.util.Arrays
+    - 배열 수정과 관련한 메서드를 제공하는 유틸리티 클래스 : 모두 static 메서드
+    - 알고리즘 공부할 때 기본적으로 Arrays가 제공하는 메서드를 만들어보는 것도 좋은 듯
+    => Arrays만이 아니라 util에 있는 것을 똑같이 구현해보는 것도 공부많이될 듯
+
+    - 레퍼런스 타입 비교 기준 : java.util.Comparable 구현 클래스 - 메서드 오버라이딩(오름, 내림차순 코딩)
+    => Arrays.binarySearch가 Comparable 변수 타입 표준화, compareTo를 사용함 : Arrays.
+    => Arrays.binarySearch 사용하지않거나 레퍼런스 타입 특정 필드 쏘팅(기준까지) + 써치한다면 아래처럼
+    (1) Array가 아니라면 쏘팅 기준 : java.util.Comparator를 구현해서 쏘팅 기준 정의
+    (2) 커스텀 쏘팅 메서드
+    (3) 커스텀 써치 메서드
 
 
 

@@ -1,4 +1,4 @@
-package com.jinbro.source.stdapi.time;
+package com.jinbro.source.stdapi.time.tojava6;
 /*
    [Date + SimpleDateFormat]
     1) 시스템의 날짜, 시간을 읽을 수 있는 유틸리티

@@ -131,12 +131,46 @@
     (3) 커스텀 써치 메서드
 
 
+    10) java.lang Wrapper 클래스들
+    - primitive type 데이터를 내부 데이터로 갖는 포장 클래스
+    - 내부 데이터는 변경할 수 없고, 변경효과를 가지려면 새로운 Wrapper 인스턴스 생성해야함
+    - 박싱과 언박싱
+    (1) 박싱 : 내부데이터를 포장하는 것
+    (2) 언박싱 : 포장된 내부데이터를 꺼내는 것
+
+    - 왜 사용할까?
+    (1) primitive type을 reference type으로 변경 -> 각 자료형에 맞는 메서드를 가짐 : 유틸리티 역할
+
+
+    11) java.lang.Math, java.util.Random
+    - Math
+    (1) 수학 유틸리티
+    (2) 모두 static 메서드
+    (3) 메서드를 직접 구현해보는 것 좋음 : 반올림 메서드가 첫번째 자리에서 반올림하는데 3번째 자리에서 반올림되게 커스텀해본다던지...
+
+    - Random
+    (1) 다양한 타입의 랜덤값을 얻기위한 메서드를 가진 유틸 클래스 : Math.random()은 내부적으로 Random의 double형 랜덤 메서드를 사용함
+    (2) 랜덤 인스턴스 생성할 때 시드값을 정해줄 수 있는데 시드값이 같을 경우 같은 난수들이 리턴됨
+
+
+    12) java.util.Date, java.util.Calendar
+    - 시스템 날짜, 시간 관련 유틸리티 객체
+
+
+    13) java.text.Format
+    - abstract 클래스 : Format을 구현하는 각종 클래스 - 포맷팅과 관련한 객체타입
+    (1) DecimalFormat
+    (2) SimpleDateFormat
+    (3) MessageFormat
+
+    - 포맷팅 관련 인터페이스가 있다는 점을 알아두자
 
 
 
 */
 
 package com.jinbro.source.stdapi;
+
 
 
 public class ApiMain {

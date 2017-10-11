@@ -1,4 +1,4 @@
-package com.jinbro.source.stdapi.time.tojava6;
+package com.jinbro.source.stdapi.time.tojava7;
 
 /*
     [Calendar + TimeZone]

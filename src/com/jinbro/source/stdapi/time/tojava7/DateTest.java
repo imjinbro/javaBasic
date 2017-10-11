@@ -1,4 +1,4 @@
-package com.jinbro.source.stdapi.time.tojava6;
+package com.jinbro.source.stdapi.time.tojava7;
 /*
    [Date + SimpleDateFormat]
     1) 시스템의 날짜, 시간을 읽을 수 있는 유틸리티
@@ -9,7 +9,6 @@ package com.jinbro.source.stdapi.time.tojava6;
 */
 
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Date;
 
 public class DateTest {
@@ -26,19 +25,4 @@ public class DateTest {
 
     }
 }
-
-
-
-
-
-class Member implements Comparator{
-
-    /* 레퍼런스 비교 */
-    @Override
-    public int compare(Object o1, Object o2) {
-        return 0;
-    }
-}
-
-
 

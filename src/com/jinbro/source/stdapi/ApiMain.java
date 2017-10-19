@@ -153,7 +153,7 @@
     (2) 랜덤 인스턴스 생성할 때 시드값을 정해줄 수 있는데 시드값이 같을 경우 같은 난수들이 리턴됨
 
 
-    12) java.util.Date, java.util.Calendar
+    12) java.util.Datje, java.util.Calendar
     - 시스템 날짜, 시간 관련 유틸리티 객체
 
 

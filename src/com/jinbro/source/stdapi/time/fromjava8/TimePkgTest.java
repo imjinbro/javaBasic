@@ -70,9 +70,5 @@ public class TimePkgTest {
 
         System.out.println(ts1.until(ts2, ChronoUnit.NANOS));
 
-
-
-
-
     }
 }

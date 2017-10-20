@@ -101,6 +101,13 @@ package com.jinbro.source.thread;
     - synchronized 메서드나 블록 내에서만 사용가능
     - Runnable은 스케줄링에 의해 실행될 수 있고, 일시정지 상태는 실행할 수 없는 상태
 
+    (5) stop 플래그 or interrupt
+    - 쓰레드 Running(혹은 Runnable) 상태 즉, run() 메서드 실행이 완전히 끝나지않은 상태에서 종료할 때 사용하는 방법
+    - stop() 메서드를 제공했지만 deprecated 된 메서드 : 쓰레드가 중간에 급작스럽게 소멸될 경우 쓰레드 사용에 필요한 자원들이 찌꺼기화 될 수 있어서
+    - stop 플래그 : run()을 돌리다가 특정 상태에 이르렀을 때 run 종료가 되도록 코드를 짜는 것(ThreadStateControl > ExamThread run 참고)
+    - interrupt : 쓰레드가 일시정지 상태에 있을 때 호출하면 익셉션 발생 -> run() 메서드 정상종료
+    => Thread.interrupted 혹은 쓰레드인스턴스.isInterrupted 로 적용되었는지 알 수 있음
+
 
 */
 

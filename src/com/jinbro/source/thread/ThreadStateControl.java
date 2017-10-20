@@ -1,5 +1,14 @@
 package com.jinbro.source.thread;
+/*
+    [쓰레드 상태제어 메서드]
+    0) 상태 : NEW - Runnable <--- (일시정지될수도) ---> Running - Terminated
+    1) sleep
+    2) yield
+    3) join
+    4) notify(notifyAll), wait
+    5) stop flag 사용 혹은 interrupt
 
+*/
 public class ThreadStateControl {
     public static void main(String[] args) {
         ExamThread thread1 = new ExamThread();
@@ -56,6 +65,29 @@ public class ThreadStateControl {
 
         thA.start();
         thB.start();
+
+
+
+        /*
+            [interrupt]
+            - 쓰레드 정상타임이 아닌 비정상타임에 정상적으로 종료를 하기위해서 사용하는 메서드
+            - 쓰레드가 일시정지 상태이어야함 : 대기나 실행상태일 때는 발생하지않음 - 그래서 Thread run에서 Thread.sleep을 넣음
+            - 일시정지 상태였을 때 적용되는 것이지만 interrupt 한번 시켜놓으면 interrupt 대기 중 : 일시정지 되는 즉시 정지
+            - Thread.interrupted() : 쓰레드 정적 메서드로 쓰레드 객체 내부에서 사용하면 됨, 적용된 상태일 때에 run 종료되도록 해도 됨
+            - thC.isInterrupted() : 쓰레드 객체가 인터럽트 적용된 상태인지 알 수 있음(일시정지 상태가 아니더라도 적용되었는지)
+        */
+        Thread thC = new ThreadC();
+        thC.start();
+
+        //1초 후 종료
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        thC.interrupt();
+
 
     }
 }
@@ -149,5 +181,27 @@ class ThreadB extends Thread{
         for(int i=0; i<5; i++){
             obj.methodB();
         }
+    }
+}
+
+/* interrupt 사용해보기위한 쓰레드 */
+class ThreadC extends Thread {
+
+    @Override
+    public void run() {
+        try{
+            while(true){
+                if(Thread.interrupted()){
+                    break;
+                }
+
+                System.out.println("실행 중");
+                Thread.sleep(100);
+            }
+        } catch(InterruptedException e){
+            e.printStackTrace(); //로그에
+        }
+
+        System.out.println("쓰레드 종료");
     }
 }

@@ -91,8 +91,8 @@ package com.jinbro.source.thread;
     - 특정 상태일 때 yield를 호출하고 있다가, 특정 상태가 다시 변경되면 처리 코드 흐름으로
     - 쓰레드 스케줄링에서 빠지지않으나 쓰레드 흐름이 이어나가지않고 다른 쓰레드가 실행기회를 얻음
 
-    (3) join : 다른쓰레드 종료를 기다림
-    - 다른 쓰레드가 종료되기까지 기다려야하는 상황일 떄 사용 : 쓰레드 처리 후 특정값이 필요할 떄
+    (3) join : 다른쓰레드가 해당 쓰레드가 종료될 떄까지 기다림
+    - 쓰레드가 종료되기까지 다른 쓰레드가 기다려야하는 상황일 떄 사용 : 해당 쓰레드 처리 후 특정값이 필요할 떄
 
     (4) notify, wait, notify
     - 같은 공유객체를 사용할 때 공유객체의 자원(메서드, 블록)이 synchronized라면 A쓰레드가 사용 중이면 B는 대기
@@ -139,6 +139,24 @@ public class ThreadTest {
             }
         };
         th3.start();
+
+
+        /* 람다표현식(java8)으로 추상화하기 : Runnable 타입 객체가 넘어올 것으로 컴파일러가 추론할 수 있음 - 단일 메서드 인터페이스(함수형 인터페이스 구현) */
+        Thread th4 = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("ㅎㅇ");
+        });
+        th4.start(); // 작업쓰레드가 Runnable run() 실행
+
+
+
+
+
 
     }
 }

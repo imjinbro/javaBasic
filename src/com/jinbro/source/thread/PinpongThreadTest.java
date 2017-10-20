@@ -13,6 +13,15 @@ public class PinpongThreadTest {
 
         pd.start();
         cs.start();
+
+
+        /* 다른 예제 */
+        Account account = Account.getAccount();
+
+        Customer jinbro = new Customer("jinbro", account);
+        Customer jinhyung = new Customer("jinhyung", account);
+        jinbro.start();
+        jinhyung.start();
     }
 }
 
@@ -77,6 +86,54 @@ class Consumer extends Thread {
     public void run() {
         for(int i=0; i<5; i++){
             db.getData();
+        }
+    }
+}
+
+
+
+class Account {
+    private static Account account = new Account();
+    private int money;
+
+    private Account() {
+        money = 1000000;
+    }
+
+    private int getMoney() {
+        return money;
+    }
+
+    public synchronized void setMoney(String toName, int money) {
+        notify(); //일시정지 상태인 쓰레드를 Runnable로(1개, 다수를 하려면 notifyAll)
+        try {
+            wait(); //Runnable 상태인 쓰레드를 일시정지 상태로
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        this.money = money;
+        System.out.println("송금자 : " + toName + ", " + getMoney() + "원");
+    }
+
+    public static Account getAccount(){
+        return account;
+    }
+}
+
+class Customer extends Thread {
+
+    private String name;
+    private Account to;
+
+    public Customer(String name, Account account) {
+        this.name = name;
+        this.to = account;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 1000000; i += 100) {
+            to.setMoney(name, i);
         }
     }
 }

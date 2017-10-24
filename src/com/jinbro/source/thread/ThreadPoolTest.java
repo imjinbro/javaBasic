@@ -118,7 +118,7 @@ public class ThreadPoolTest {
 
             2) submit
             - Runnable, Callable을 작업 큐에 저장
-            - 리턴된 Future 객체의 메서드를 통해 작업 처리 결과를 얻을 수 있음
+            - 리턴된 Future 객체의 메서드를 통해 작업 처리 결과를 얻을 수 있음 : 작업큐에 작업을 저장한 후 곧바로 Future 객체 리턴
             - 작업 처리 도중 예외 발생 쓰레드 종료X - 쓰레드풀에서 다음 작업 처리를 위해서 재활용
         */
 
@@ -142,11 +142,10 @@ public class ThreadPoolTest {
                 }
             };
 
-            executorService.execute(runnable);
+            executorService.submit(runnable);
             //Integer.parseInt("삼") -> NumberFormatException 발생 -> 쓰레드 종료, 풀에서 제거 -> 새로운 쓰레드 생성 -> 풀 추가
             //pool-4-thread-번호 가 바뀌는 것을 볼 수 있음 : 풀에 존재하는 쓰레드 최대 개수는 2로 변하지않음(쓰레드만 계속 생성되서 추가)
             //executorService.submit을 사용하면 생성해놓은 쓰레드 2개를 가지고 풀에서 작업처리를 함
-
 
             try {
                 Thread.sleep(10); //콘솔에 System.out.println("메세지")가 찍힐 수 있도록
@@ -155,8 +154,133 @@ public class ThreadPoolTest {
             }
         }
 
+
+        /*
+            [결과값을 리턴받을 수 있는 객체 Future(submit 메서드 리턴 객체)]
+            - 블로킹작업, 쓰레드가 작업 완료할 떄까지 블로킹 : get할 떄는 또다른 쓰레드를 사용
+            - 결과값을 받아오기위한 쓰레드를 풀에서 꺼내서 사용하기 : 나눠라는 것, 작업 처리와 작업 결과를 받아오는 쓰레드
+            - Runnable, Callable 모두 Future를 리턴받음
+            1) Runnable : 작업처리가 정상 완료되었는지, 예외가 발생했는지 확인할 수 있음 : cancel, isCancelled, isDone
+            2) Callable : 작업처리 완료여부, 작업처리 후 결과값을 얻을 떄 사용
+        */
+        Callable<Integer> callable = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                int sum = 0;
+                for(int i=0; i<100000000; i++){
+                    sum += i;
+                }
+                return sum;
+            }
+        };
+
+        /*
+            [Future.get()]
+            - get()을 사용할 경우 타임아웃을 정할 수도 있음 : get(long time, TimeUnit format)
+            - submit의 파라미터에 따라 결과 타입이 바뀜
+            1) Runnable만 전달할 경우 결과값을 리턴하지않기떄문에 null : submit(Runnable runnable)
+            2) Callable<T>를 전달할 경우 T : submit(Callable<T> callable)
+            - 쓰레드 작업 내부에서 결과값을 리턴함
+
+            3) 작업처리 결과를 외부 객체(공유 객체)에 저장할 때 : 작업은 Runnable
+            - submit(Runnable runnable, T result) : T 타입 객체(쓰레드 작업처리 외부에 생성되어진)에 저장
+            - 2개 이상의 쓰레드로부터 얻은 결과를 취합할 때 사용
+
+
+            [Future]
+            - get 이외에도 메서드 제공
+
+            1) cancel : 작업 처리가 진행중일 경우 취소시킴
+            2) isCancelled : 작업이 취소되었는지 여부
+            3) isDone : 작업이 완료되었는지 여부
+        */
+
+        Future future1 = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=0; i<100000000; i++){}
+            }
+        });
+
+        executorService.submit(() -> {
+            try {
+                //정상적으로 완료되었으면 null이 리턴
+                if(future1.get() == null){
+                    System.out.println("작업이 완료되었습니다");
+                }
+            } catch (InterruptedException e) {
+                /* 작업처리 도중 interrupt되면 예외발생 : 일시정지 -> 쓰레드 종료 */
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                /* 작업처리 도중 예외가 발생하면 예외 발생 */
+                e.printStackTrace();
+            }
+        });
+
+        Future<Integer> future2= executorService.submit(callable);
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println(future2.get());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+        Result result = new Result();
+
+        //전달되는 result : Future.get()으로 리턴받기(취합결과), result.get할수 있지만 취합결과, 작업처리 완료 후 result를 얻을 수 있음
+        Future<Result> future3 = executorService.submit(new AddTask(result), result);
+        Future<Result> future4 = executorService.submit(new AddTask(result), result);
+
+        try {
+            //get은 쓰레드 블로킹 작업처리 : 별도의 쓰레드를 사용하는 것이 좋음
+            result = future3.get();
+            result = future4.get();
+
+            //안전하게 작업처리완료 결과얻기
+            System.out.println("작업 결과 : " + result.getSum());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
         executorService.shutdown();
+    }
+}
 
+class AddTask implements Runnable {
 
+    Result result;
+
+    public AddTask(Result result) {
+        this.result = result;
+    }
+
+    @Override
+    public void run() {
+        int sum = 0;
+
+        for(int i=0; i<100000; i++){
+            sum += i;
+        }
+        result.addValue(sum);
+    }
+}
+
+class Result {
+    int sum = 0;
+
+    public int getSum() {
+        return sum;
+    }
+
+    synchronized public void addValue(int num) {
+        sum += num;
     }
 }

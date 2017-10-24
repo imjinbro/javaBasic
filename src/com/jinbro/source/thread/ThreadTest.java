@@ -1,6 +1,7 @@
 package com.jinbro.source.thread;
 
 /*
+
     [프로세스와 쓰레드 그리고 멀티테스킹]
     1) 프로세스 : 프로그램이 메모리를 할당받아 코드를 실행한 것
     - 1개의 프로그램이 여러개 켜져있으면 각각의 프로세스 : 독립적
@@ -145,7 +146,7 @@ package com.jinbro.source.thread;
     - 쓰레드풀 : 큐로 구현(FIFO)
     - java.util.concurrent.ExecutorService 인터페이스 : 구현객체 얻기(쓰레드풀, Executors 객체의 static method)
     - 쓰레드 관리 쓰레드 : 쓰레드풀 쓰레드, 데몬쓰레드가 아니기때문에 쓰레드풀 쓰레드 종료해주지않으면 프로세스 종료가 안됨
-
+    - 쓰레드풀 + 쓰레드(ExecutorService - ThreadPoolExecutor) / 작업(Runnable, Callable) / 작업처리 결과얻기(Future)
 
 */
 

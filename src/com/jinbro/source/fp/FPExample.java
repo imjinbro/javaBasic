@@ -8,7 +8,7 @@ package com.jinbro.source.fp;
     - 객체 상태 변화에 민감한 부분에서 순수함수형프로그래밍이 좋다 : 같은 input -> 같은 output
     - 변경 개념이 아니라 복사되고 복사된 것이 함수를 거쳐 결과값으로 : side effect 없앰
 
-    2) 함수에만 신경쓰면 됨
+    2) 함수에만 신경쓰면 됨 : 메서드에만 집중가능함
     - 객체지향설계 메서드 single responsibility principle과 비슷함, side effect를 생각해야하는가 차이가 남
     - 쪼개서 생각하기
     - 간결해짐 : 퍼즐 맞추기 같은 느낌이랄까
@@ -47,6 +47,7 @@ package com.jinbro.source.fp;
     2) Consumer<T> : <T> -> Void
     3) Predicate<T> : <T> -> Boolean
     4) Supplier<T> : lazy evaluation
+
 
 */
 

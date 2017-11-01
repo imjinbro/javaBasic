@@ -11,14 +11,24 @@ package com.jinbro.source.fp;
 
     4) 람다식을 사용하면 그떄마다 필요한 함수를 갈아끼우는 효과
     - 파라미터 개수만 맞다면 : 타입파라미터를 사용하면 타입은 생각안해도되니깐
+
+
+
  */
 
+import java.math.BigDecimal;
 import java.util.function.Supplier;
 
 @FunctionalInterface
 public interface MFuncInterface<T, R> {
     R apply(T data);
     //R print(T data); : 2개의 abstract 메서드가 있으면 람다식을 사용할 수 없음 : 어떤 메서드인지 구분X
+}
+
+@FunctionalInterface
+interface BigDecimalToCurrency{
+    /* NONE-Generic : 명확한 경우에는 <T> 타입파라미터를 받지않고 명시적으로 지정해놓음 : 람다식을 생성하는 쪽에서 쓰면 추론 */
+    String toCurrency(BigDecimal value);
 }
 
 
@@ -43,6 +53,11 @@ class MFuncInterfaceUse {
 
         hello(true, () -> "Jinbro");
         hello(false, () -> "Jinbro");
+
+
+        BigDecimalToCurrency bigDecimalToCurrency = bd -> "$" + bd.toString();
+        System.out.println(bigDecimalToCurrency.toCurrency(new BigDecimal(120.00)));
+
     }
 
     static <T> void method(T data, MFuncInterface<T, String> func){

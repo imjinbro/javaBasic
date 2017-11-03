@@ -11,9 +11,6 @@ package com.jinbro.source.fp;
 
     4) 람다식을 사용하면 그떄마다 필요한 함수를 갈아끼우는 효과
     - 파라미터 개수만 맞다면 : 타입파라미터를 사용하면 타입은 생각안해도되니깐
-
-
-
  */
 
 import java.math.BigDecimal;

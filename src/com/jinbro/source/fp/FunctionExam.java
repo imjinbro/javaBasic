@@ -53,7 +53,7 @@ public class FunctionExam {
                 new Member(95, 93),
         };
 
-        //function.apply를 람다식 대체한다고 생각하면 쉬움
+        //function.apply를 람다식 대체한다고 생각하면 쉬움 : (member) : apply(member), -> Math::getMathScore : apply 구현부
         double englishAvg = sum(members, member -> member.getEnglishScore());
         System.out.println(englishAvg);
 

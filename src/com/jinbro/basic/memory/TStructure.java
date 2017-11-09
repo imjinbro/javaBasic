@@ -11,7 +11,7 @@ package com.jinbro.basic.memory;
     1) T 메모리구조
     - static : 클래스 - JVM 자바프로그램 실행 전 java.lang 패키지 클래스, import 자바 클래스, 사용 class 정보 로딩
     - stack : 메서드 - 메서드 스택 프레임 생성, 인자 공간 할당, 지역변수 공간 및 값 할당
-    - heap : 인스턴스
+    - heap : 인스턴스 - 생성된 객체가 저장된 공간
 
 
     [static - 클래스]
@@ -45,8 +45,6 @@ package com.jinbro.basic.memory;
    0) 멀티프로세스는 T메모리 구조를 N개 프로세스만큼 가짐
    - 프로세스는 프로그램을 별개로 실행한 형태 : 고유의 메모리공간, 데이터 주고받기 불가능
    - 일부 다중처리를 위해서 멀티프로세스를 한다면 낭비
-
-
  */
 public class TStructure {
 

@@ -15,10 +15,10 @@ package com.jinbro.basic.memory;
 
 
     [static - 클래스]
-    1) 메모리 스태틱 영역
+    1) 메모리 스태틱 영역 : 해당 클래스가 사용되기 시작하는 부분에서 로딩 프로그램 종료될 떄까지는 그대로 로드된 상태
     - 자바 기본 패키지(java.lang) 로드
     - 자바 프로그램에서 사용하는 패키지(클래스) 로드
-    - 클래스 변수/메서드 로드
+    - 클래스 변수/메서드 로드 : 인스턴스 메서드는 메모리 절약을 위해서 1개만 생성함, this를 넘겨받도록 코드 변경됨
 
 
     [stack 영역 - 스택프레임]
@@ -31,6 +31,12 @@ package com.jinbro.basic.memory;
     3) 타입에 따라 다른 데이터 주고 받기 : call by value, call by reference
     - primitive : 값 복사, 전혀 다른 값(call by value)
     - reference : 주소 복사, 같은 객체(call by reference)
+    (1) 레퍼런스 타입 변수에 null이나 다른 주소값을 저장한다고하더라도 이전 인스턴스가 null이 되거나 하지않음
+     T a = new T();
+     T b = a; //주소값을 복사한 것임, call by reference와 value의 차이는 어떤 값이냐지 다른 과정이 아님
+     a = null; //a 변수에 아무것도 저장하지않는다는 것일 뿐 저장되어있던 객체주소가 가리키는 객체가 사라지지않음
+     b.toString(); //멀쩡하게 출력
+
 
 
     [멀티쓰레드 환경 T메모리]

@@ -1,4 +1,4 @@
-package com.jinbro.source.fp;
+package com.jinbro.source.fp.lambda;
 
 import java.util.function.Consumer;
 

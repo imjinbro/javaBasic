@@ -1,4 +1,4 @@
-package com.jinbro.source.fp;
+package com.jinbro.source.fp.lambda;
 
 public class ThreadLambda {
     public static void main(String[] args) {

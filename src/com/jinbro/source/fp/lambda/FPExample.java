@@ -1,4 +1,4 @@
-package com.jinbro.source.fp;
+package com.jinbro.source.fp.lambda;
 
 /*
     [FP를 OOP에서 왜?]

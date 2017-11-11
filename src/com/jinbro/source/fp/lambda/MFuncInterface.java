@@ -1,4 +1,4 @@
-package com.jinbro.source.fp;
+package com.jinbro.source.fp.lambda;
 
 /*
     [직접 함수형인터페이스를 만들어서 패턴 익혀보기 : 람다식의 장점을 느껴보자]

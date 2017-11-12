@@ -24,6 +24,8 @@ package com.jinbro.source.fp.stream;
     2) 오토박싱,언박싱 그리고 integer 캐시
     3) Iterable
     4) 컬렉션 프레임워크 : 레퍼런스 타입 저장
+    5) System 객체 : 시스템(jvm) 설정
+    6) 쓰레드 제어 : 자바 병렬 프로그래밍, 쓰레드풀(쓰레드 + 작업 큐 + 작업)
 
 */
 import java.util.ArrayList;

@@ -10,7 +10,7 @@
 ````
 
 
-## 모던 자바, 추상화되는 자바 
+## 모던 자바
 ````
 설명
 ````
@@ -22,3 +22,5 @@
 * [java8 spec](http://docs.oracle.com/javase/specs/jls/se8/html/index.html) - 자바8 스펙 명세, 9은 아직까지....
 * [java api](http://docs.oracle.com/javase/8/docs/api/) - 표준 API 문서
 * [이것이 자바다](http://www.hanbit.co.kr/store/books/look.php?p_code=B1460673937)
+* [모던자바 (자바8) 못다한 이야기 시리즈](https://www.youtube.com/playlist?list=PLRIMoAKN8c6O8_VHOyBOhzBCeN7ShyJ27)
+

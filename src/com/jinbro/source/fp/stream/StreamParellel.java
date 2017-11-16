@@ -5,6 +5,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /*
+    [동시성과 병렬성]
+    - 멀티쓰레드의 동작방식이라는 점은 같음
+
+    1) 동시성 : 하나의 코어에서 멀티쓰레드를 돌림, 번갈아가면서(워낙 빨라서 병렬성처럼 보임)
+    2) 병렬성 : 멀티코어로 작업을 처리함, 각 쓰레드로
+
+
+    [병렬성]
+    1) 데이터 병렬성(data parallelism) : 전체 데이터를 여러 서브데이터로 쪼개고 병렬처리 후 하나로 모음(Stream parallel)
+    - 스트림 병렬처리 : ForkJoin 프레임워크, fork(쪼개고), join(합침)
+    - 각각 코어 처리, 코어 내부 쓰레드풀(ForkJoinPool)로 멀티쓰레드 관리(내부에서 더 쪼개서)
+
+    2) 작업 병렬성(task parallelism) : 서로 다른 작업을 병렬 처리하는 것
+
+
     [Stream parallel - 병렬 프로그래밍]
     1) 1개 코어 집적도만 높이는게 아니라 코어를 여러개 다는 방식으로
     - 듀얼, 쿼드, 옥타.....
@@ -16,6 +31,11 @@ import java.util.stream.IntStream;
     3) Stream의 parallel() 이나 기존 컬렉션.parallelStream()
     - 시스템 코어가 많을수록 더 빠른 처리
     - 내부적으로
+
+    4) 무조건 빠른처리를 하지않음
+    - 처리 요소수가 적고 실행당 처리시간이 얼마안되는 처리일 경우 오히려 느림 : 싱글코어보다
+    - 인덱스가 있어서 쪼개기 쉬운 컬렉션보다 링크드리스트(객체 연결)형태는 상대적으로 느림
+    - 싱글코어 CPU인 경우 순차적으로 1개씩 처리하는게 더 나음 : parallel하면 동시성 작업이 됨
 
  */
 public class StreamParellel {

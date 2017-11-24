@@ -1,4 +1,4 @@
-package com.jinbro.source.io.bytestream;
+package com.jinbro.source.io.consoleIO;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -21,6 +21,13 @@ public class Strategy {
 
         myRobot.setMoving(new WalkingMove());
         myRobot.move();
+
+
+        Member jinbro = new Member("jinbro");
+        Book oopDesignPattern = new Book("Java 객체지향 디자인패턴", " 20170403", 28000);
+
+        Rental rental1 = new Rental(jinbro, oopDesignPattern, 1);
+        rental1.order();
     }
 }
 
@@ -132,8 +139,8 @@ abstract class PricePolicy{
 
 class MemberPrice extends PricePolicy{
 
-    public MemberPrice(double rate) {
-        super(rate);
+    public MemberPrice() {
+        super(0.1);
     }
 
     @Override
@@ -144,8 +151,8 @@ class MemberPrice extends PricePolicy{
 
 class OrdinaryPrice extends PricePolicy{
 
-    public OrdinaryPrice(double rate) {
-        super(rate);
+    public OrdinaryPrice() {
+        super(0);
     }
 
     @Override
@@ -156,8 +163,8 @@ class OrdinaryPrice extends PricePolicy{
 
 class OlderBookPrice extends PricePolicy{
 
-    public OlderBookPrice(double rate) {
-        super(rate);
+    public OlderBookPrice() {
+        super(0.5);
     }
 
     @Override
@@ -169,6 +176,11 @@ class OlderBookPrice extends PricePolicy{
 class Member{
     private String name;
     private int totalPrice;
+
+    public Member(String name) {
+        this.name = name;
+        this.totalPrice = 0;
+    }
 
     public int getTotalPrice() {
         return totalPrice;
@@ -184,7 +196,7 @@ class Rental{
     private Book book;
     private int quantity;
 
-    private PricePolicy priceCalulator;
+    private PricePolicy pricePolicy;
 
     public Rental(Member member, Book book, int quantity) {
         this.member = member;
@@ -192,15 +204,16 @@ class Rental{
         this.quantity = quantity;
 
         /* 알고리즘 추가 부분 : 멤버(누적금액)에 따라서, 책(10년 이상)에 따라서 */
+        setPricePolicy(new MemberPrice());//임의로 세팅
     }
 
-    public void setPriceCalulator(PricePolicy priceCalulator) {
-        this.priceCalulator = priceCalulator;
+    public void setPricePolicy(PricePolicy pricePolicy) {
+        this.pricePolicy = pricePolicy;
     }
 
     public void order(){
         member.setTotalPrice(
-            priceCalulator.calc(book.getPrice()) * quantity
+            (pricePolicy.calc(book.getPrice())) * quantity
         );
     }
 }
@@ -208,7 +221,6 @@ class Rental{
 class Book{
     private String name;
     private String date;
-
     private int price;
 
     public Book(String name, String date, int price) {

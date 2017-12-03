@@ -1,137 +1,188 @@
 package com.jinbro.source.io.networkIO.socket.chatting;
+/*
+    [1단계 순서도]
+    1. 서버 오픈 : 바인드 포트 지정
+    2. 서버 소켓 클라이언트 요청 기다림
+    3. 클라이언트 서버(호스트 IP와 액세스 포트)액세스 요청
+    4. 서버 - 클라이언트 각각 소켓 생성 : 대기방 입장한 것
+    5. 서버는 accept() 블로킹이 풀린 후 소켓을 얻게됨
+    6. 대기실에서 할 수 있는 일(프로토콜)
+    (1) 대기실 인원들과 채팅(일반 채팅 메세지만)
+    (2) 방 만들기
+    (3) 방 참여하기
+
+
+    [12/3]
+    (1) StringTokenizer
+    - 델리미터가 존재하지않아도 입력된 값이 있으면 1개의 토큰으로
+
+    (2) switch
+    - default -> break; 사용하지않음
+
+    (3) 코드 파악
+    - 메인 메서드를 먼저본다 : 어떤 흐름으로 코드가 실행되는가, 어떤 객체가 연관되어있는가, 메서드가 무엇인지 하나씩 파악하기
+
+    (4) 프로토콜
+    - 코드 짜기 전에 필요한 프로토콜에는 어떤 것이 있고, 프로토콜과 메세지 구분자 뭘로, 순서 어떻게 배치할건지 먼저 정해야
+ */
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
-/*
-    [콘솔 기반 다중접속 채팅방 : 쓰레드풀 멀티쓰레드 채팅 서버 - 클라이언트]
-
-    [한 것]
-    (1) accept(접속 여러명), read/write(메세지 읽으면서,보내면서 다른 것 할 수 있기) 멀티쓰레드(쓰레드풀) 처리
-    - accept() : 여러 사람의 접속을 위해서 별도 쓰레드 돌아가야함
-    - read() : 계속해서 돌아가야함 : 계속 리시버를 돌려야하므로
-    - write() :
-
-    (2) 서버 쪽에서 유저 관리를 위해서 내부 클래스 만듬
-    - 각각에 대한 서버 소켓, I/O 스트림, 유저명
-
-
-    [해야할 것]
-    (1) 프로토콜 정하기 : 통신 규칙
-    (2) 소켓 연결 끊겼을 때 에러 처리 작성하기
-    (3) 다시 처음부터 모델링하기
-    (4) 접속기를 각각 따로 만들고 있는데 하나의 클래스로 정리해서 테스트 용이하게 만들기
-    - 네트워크 부분과 정보 부분 분리시키기
- */
 public class Server {
     public static void main(String[] args) {
-        Server server = new Server(9991);
+        Server server = new Server("jinbroWorld");
         server.start();
     }
 
-    private ExecutorService threadPool;
+    private String serviceName;
+    private ExecutorService threadPool; //서버 쓰레드풀
+
     private ServerSocket serverSocket;
-    private Socket socket;
-    private final int BIND_PORT;
+    private final int BIND_PORT = 9991;
 
-    private Vector<UserInfo> userList;
+    private Vector<User> clientList; //유저별 관리가 필요함
 
-    public Server(int BIND_PORT) {
-        threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        this.BIND_PORT = BIND_PORT;
-        userList = new Vector<>();
-    }
-
-    public void start(){
+    public Server(String serviceName) {
         try {
+            this.serviceName = serviceName;
             serverSocket = new ServerSocket(BIND_PORT);
+            threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            clientList = new Vector<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        connect();
     }
 
-    public void connect(){
-        Runnable task = () -> {
+    public void start(){
+        Runnable connectTask = () -> {
             while(true) {
                 try {
-                    System.out.println("[접속 대기중]");
-                    socket = serverSocket.accept();
+                    System.out.println("[연결대기]");
+                    Socket socket = serverSocket.accept();
 
-                    /* 접속된 이후 */
-                    System.out.println("[접속]");
-                    UserInfo user = new UserInfo(socket);
-                    user.start();
-
-                    userList.add(user);
+                    /* 연결 후 */
+                    connected(socket);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         };
-        threadPool.submit(task);
+        threadPool.submit(connectTask);
+    }
+
+    public void connected(Socket socket){
+        System.out.println("[연결됨]");
+        User user = new User(socket);
+    }
+
+    public void noticeAllUser(String msg){
+        for(User user : clientList){
+            user.outputMessage(msg);
+        }
+    }
+
+    public void close(){
+
     }
 
 
-    class UserInfo extends Thread{
-        private Socket user_socket;
+    /********** 클라이언트 각각의 소켓, 스트림을 관리하기위한 내부 클래스(UserInfo 포괄적인 클래스이름으로 변경하기) ************/
+    class User {
+        private Socket userSocket;
         private DataInputStream dis;
         private DataOutputStream dos;
 
         private String userName;
 
-        public UserInfo(Socket socket) {
-            this.user_socket = socket;
-            connectionInit();
-        }
+        public User(Socket socket) {
+            userSocket = socket;
 
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void connectionInit(){
             try {
-                dis = new DataInputStream(user_socket.getInputStream());
-                dos = new DataOutputStream(user_socket.getOutputStream());
-                setUserName(dis.readUTF());
+                dis = new DataInputStream(userSocket.getInputStream());
+                dos = new DataOutputStream(userSocket.getOutputStream());
+                inputMessage(); //소켓, 인풋스트림 백그라운드 루프 가동
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        @Override
-        public void run() {
-           receiveMessage();
+        /* 클라이언트로부터 입력 데이터 처리 : 클라이언트 -> 서버 입력 */
+        public void inputMessage(){
+            Runnable inputReceiverTask = () -> {
+                while(true) {
+                    try {
+                        String inputData = dis.readUTF();
+                        handleMessage(inputData); // 프로토콜/메세지 처리 메서드
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            threadPool.submit(inputReceiverTask);
         }
 
-        public void receiveMessage(){
-            while(true){
-                try {
-                    //해당 유저로부터 받은 메세지를 다른 클라이언트(소켓)로 쏴줘야지
-                    String msg = dis.readUTF();
+        public void handleMessage(String inputData){
+            if(inputData.charAt(0) == '/'){
+                StringTokenizer stz = new StringTokenizer(
+                    new StringTokenizer(inputData, "/").nextToken(), " "
+                );
+                String protocol = stz.nextToken();
+                String msg = stz.nextToken();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                /*"
+                /이름설정 OOO"; -> 딱 1번만 되도록, 중복 체크
+                /이름변경 OOO"; -> 중복 체크
+                /방만들기 방이름";
+                "/방참여 방이름";
+                "그냥 메세지입니다";
+                */
+                switch (protocol){
+                    case "setName":
+                        setUserName(msg);
+                        noticeAllUser(getUserName() + "님께서 대기실에 입장하였습니다");
+                        outputMessage(serviceName + "에 입장되었습니다");
+                        clientList.add(this);
+                        break;
+
+                    default:
+                        outputMessage("유효하지않은 명령입니다");
                 }
+            } else {
+                noticeAllUser("[" + getUserName() + "] " + inputData);
             }
         }
 
-        public void sendMessage(String msg){
+        /*
+            클라이언트에 데이터 출력 : 서버 -> 클라이언트 출력
+            어떤 트리거에 의해서 발생하는 이벤트 : accept(), read()는 상대방의 행위를 기다리는 것이라 별도 쓰레드 처리
+        */
+        public void outputMessage(String msg){
+            try {
+                dos.writeUTF(msg);
+                dos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
+        public String getUserName() {
+            return userName;
+        }
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
     }
+    /****************************************************************************/
 
 }
+
+

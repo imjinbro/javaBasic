@@ -3,71 +3,61 @@ package com.jinbro.source.io.networkIO.socket.chatting;
 import java.io.*;
 import java.net.Socket;
 
-/* 서버접속기(클라이언트), 유저 정보 클래스 갈라놓기 */
 public class Client {
     public static void main(String[] args) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        User user = null;
+        Client client = new Client("127.0.0.1", 9991);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("아이디를 입력해주세요 : ");
+
         try {
-            System.out.print("아이디를 입력하세요 : ");
-            String userName = br.readLine();
+            client.connect(reader.readLine());
 
-            user = new User(userName);
-            user.connect(); /* 아이디 체킹하는 메서드 추가하기 : 서버와 연동해서 하는게 */
-
-            while(true){ //지금은 콘솔이라서 따로 쓰레드를 돌리지않음
-                user.outputMessage(br.readLine());
+            while(true){
+                client.outputMessage(reader.readLine());
             }
-
         } catch (IOException e) {
-            System.out.println("[접속 오류]");
             e.printStackTrace();
-        } finally {
-            user.disconnect();
-            try {
-                br.close();
-            } catch (IOException e) { e.printStackTrace(); }
         }
     }
-}
 
-class User {
-    private Socket socket;
+    private User user;
+
+    private boolean isConn;
     private String host;
     private int port;
+    private Socket socket;
 
     private DataInputStream dis;
     private DataOutputStream dos;
 
-    private String name;
-
-    public User(String name) {
-        this.name = name;
-        this.host = "127.0.0.1"; //호스트 ip, 액세스포트 임시 고정
-        this.port = 9991;
+    public Client(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.isConn = false;
     }
 
-    public void connect(){
+    public void connect(String userName){
         try {
+            user = new User(userName); //통신을 먼저해서 아이디 체킹하고 결과에 따라서 유저 생성하던지 아니면 빠꾸
             socket = new Socket(host, port);
             connected(socket);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void connected(Socket socket){
-        try {
+        try{
+            isConn = true;
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
-            inputMessage();
-
-            //초기 이름 설정되는 것을 한번만 되게끔 해야하는데, 여기는 서버에서 프로토콜 처리를 하면 안될듯한데..
-            outputMessage("/setName "+getName());
-
-        } catch (IOException e) {
+            inputMessage(); //백그라운드에서 서버로부터 오는 데이터 읽기
+            outputMessage("/setname " + user.getName());
+        } catch(IOException e){
             e.printStackTrace();
+            System.out.println("[접속오류]");
+            //스트림, 소켓 모두 닫기
         }
     }
 
@@ -75,13 +65,19 @@ class User {
 
     }
 
+    public boolean isConnect(){
+        if(isConn){
+            System.out.println(user.getName() +"님 클라이언트 프로그램을 통해서 접속하고있음");
+        }
+        return isConn;
+    }
+
     public void inputMessage(){
         new Thread(() -> {
             while(true){
                 try {
-                    String msg = dis.readUTF();
-                    System.out.println(msg); //프로토콜,메세지 나누기
-
+                    String msg = dis.readUTF(); //프로토콜,메세지 나누기
+                    System.out.println(msg);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -96,8 +92,20 @@ class User {
             e.printStackTrace();
         }
     }
+}
+
+class User {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

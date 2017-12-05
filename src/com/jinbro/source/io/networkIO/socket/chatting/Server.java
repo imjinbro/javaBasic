@@ -12,20 +12,11 @@ package com.jinbro.source.io.networkIO.socket.chatting;
     (3) 방 참여하기
 
 
-    [12/4]
-    (1) Server - UserInfo, Client - User 책임분할
-    - 이전 코드는 Client-User 책임이 하나의 클래스에 모여있어서 코드가 더러웠음;;
-    - Server-UserInfo 클래스는 원래 나눠져있었으나 UserInfo가 Server의 역할까지 하는 코드로 작성되어있었음
+    [12/5]
+    (1) 경우의수 나열
+    - if ~ else 로 다 나열하지않고 if return을 써서 경우의수 하나씩 처리해나가는 방식으로 코딩하니깐 훨씬 깔끔하다
 
-    (2) 메서드 오버로딩
-    - 첫번째 메서드에서 두번째 메서드 오버로딩할 때 파라미터 순서는 지켜줘야함
-
-    (3) inputData, splitMessage, handleMessage 나누기
-    - 읽기스트림에서 데이터를 읽고 작업, 처리 전 메세지를 분할하는 작업(프로토콜, 메세지), 처리하는 작업 메서드 분할
-
-    (4) Map<K,V> 사용
-    - String[] 과 같은 배열은 순서 약속을 딱딱 지켜야하니깐 K-V set으로 지정하는게 더 나을 것 같아서 Map 사용
-    - 써보면서 공부하려고 쓰는 것도 있고
+    (2) 프로토콜을 스테이트 패턴 적용해주면 어떨까?
  */
 
 import java.io.DataInputStream;
@@ -112,15 +103,40 @@ public class Server {
     }
 
     public Map<String, String> splitMessage(String data){
-        /* 클라이언트에서 받은 데이터 -> 프로토콜, 메세지 스플릿(배열말고 key-value Map을 사용하는게 더 나을듯함) */
+        /*
+            입력예시 - 여기서는 프로토콜 + 메세지가 제대로 전달되었는지만 체크함
+             (공백) : 길이가 0
+            안녕하세요
+            /
+            /명령어
+            /명령어 메세지
+         */
         Map<String, String> splitData = new HashMap<>();
 
-        if(data.charAt(0) == '/'){
-            StringTokenizer stz = new StringTokenizer(new StringTokenizer(data, "/").nextToken(), " ");
+        if(data.length() < 1){
+            splitData.put("wrong", "");
+            return splitData;
+        }
+
+        if(data.charAt(0) != '/') {
+            splitData.put("chat", data);
+            return splitData;
+        }
+
+        StringTokenizer stz = new StringTokenizer(data, "/");
+        if(stz.countTokens() == 0) {
+            splitData.put("wrong", "");
+            return splitData;
+        }
+
+        String splitTarget = stz.nextToken();
+        stz = new StringTokenizer(splitTarget, " ");
+        if(stz.countTokens() > 1){
             splitData.put(stz.nextToken(), stz.nextToken());
         } else {
-            splitData.put("chat", data);
+            splitData.put("wrong", "");
         }
+
         return splitData;
     }
 
@@ -129,7 +145,11 @@ public class Server {
             String protocol = entry.getKey();
             switch (protocol){
                 case "chat":
-                    outputMessage("["+ userInfo.getName() +"] : " + entry.getValue());
+                    if(userList.size() < 2){
+                        outputMessage("대화 대상이 없습니다", userList.firstElement());
+                    } else {
+                        outputMessage("["+ userInfo.getName() +"] : " + entry.getValue());
+                    }
                     break;
 
                 case "setname":
@@ -137,14 +157,17 @@ public class Server {
                         //아이디 중복체크하는 메서드도 추가할 수 있겠지?
                         String name = entry.getValue();
                         userInfo.setName(name);
-                        outputMessage("[" + name +"] 님 대기실 입장");
-                        outputMessage("[" + name +"] 님 " + serviceName +"에 접속되었습니다" ,userInfo);
+                        outputMessage("[" + name +"]님 대기실 입장");
+                        outputMessage("[" + name +"]님 " + serviceName +"에 접속되었습니다" ,userInfo);
                         userList.add(userInfo);
                         System.out.println("[현재 접속자 수] : " + userList.size());
                     } else {
-                        outputMessage("이미 설정되어있습니다.", userInfo);//캐시로 변경할 수 있도록 하던지 ㅎㅎㅎㅎㅎ
+                        outputMessage("이미 설정되어있습니다", userInfo);//캐시로 변경할 수 있도록 하던지 ㅎㅎㅎㅎㅎ
                     }
                     break;
+
+                default:
+                    outputMessage("잘못된 명령어입니다", userInfo);
             }
         }
     }
@@ -155,6 +178,7 @@ public class Server {
             DataOutputStream dos = user.getDos();
             try {
                 dos.writeUTF(msg);
+                dos.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -166,13 +190,14 @@ public class Server {
         DataOutputStream dos = userInfo.getDos();
         try {
             dos.writeUTF(msg);
+            dos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
 
-/********** 클라이언트 각각의 소켓, 스트림을 관리클래스 ************/
+/********** 클라이언트 각각의 소켓, 스트림을 관리클래스 : 소켓 생성되면 UserInfo 관리클래스에서 관리 ************/
 class UserInfo{
     private Socket socket;
     private DataInputStream dis;

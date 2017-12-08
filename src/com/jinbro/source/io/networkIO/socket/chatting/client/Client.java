@@ -1,7 +1,9 @@
-package com.jinbro.source.io.networkIO.socket.chatting;
+package com.jinbro.source.io.networkIO.socket.chatting.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.StringTokenizer;
+import java.util.logging.Handler;
 
 public class Client {
     public static void main(String[] args) {
@@ -21,12 +23,11 @@ public class Client {
         }
     }
 
-    private User user;
-
-    private boolean isConn;
     private String host;
     private int port;
     private Socket socket;
+
+    private User user;
 
     private DataInputStream dis;
     private DataOutputStream dos;
@@ -34,7 +35,6 @@ public class Client {
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
-        this.isConn = false;
     }
 
     public void connect(String userName){
@@ -49,7 +49,6 @@ public class Client {
 
     public void connected(Socket socket){
         try{
-            isConn = true;
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
             inputMessage(); //백그라운드에서 서버로부터 오는 데이터 읽기
@@ -65,13 +64,6 @@ public class Client {
 
     }
 
-    public boolean isConnect(){
-        if(isConn){
-            System.out.println(user.getName() +"님 클라이언트 프로그램을 통해서 접속하고있음");
-        }
-        return isConn;
-    }
-
     public void inputMessage(){
         new Thread(() -> {
             while(true){
@@ -85,27 +77,26 @@ public class Client {
         }).start();
     }
 
+    public void handleMessage(String msg){
+        StringTokenizer stz = new StringTokenizer(msg,"/");
+        String result = stz.nextToken();
+        String detailMsg = stz.nextToken();
+        MessageHandler handler = null;
+        if(result.equals("ok")){
+            handler = new OKMessageHandler();
+        }
+
+        if(result.equals("err")){
+            handler = new ErrMessageHandler();
+        }
+        handler.handler(detailMsg);
+    }
+
     public void outputMessage(String msg){
         try {
             dos.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-}
-
-class User {
-    private String name;
-
-    public User(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

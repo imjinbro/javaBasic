@@ -3,6 +3,7 @@ package com.jinbro.basic.oop.designPattern.behaviroal;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 /*
     [스테이트 패턴 - 책임 또는 알고리즘 분배 : 변경에 유연하게]
@@ -252,6 +253,95 @@ class KeepDVD implements DVDState{
     @Override
     public void reserve(DVD dvd) {
         System.out.println("예약자 대여 대기중 : 대기까지 " +  ((EXPIRE + startDay) - startDay) + "일 남음(기간 내 대여하지않으면 빌릴 수 있음)");
+    }
+}
+
+
+class VendingMachine{
+    /* Map<Item, quantity> itemList */
+    private Map<Item, Integer> itemList;
+    private VendingMachineState state;
+
+    public VendingMachine() {
+        itemList = new HashMap<>();
+    }
+
+    public void setState(VendingMachineState state){
+        this.state = state;
+    }
+
+    public void addItem(){
+
+    }
+
+    private Item peekItem(){
+        return null;
+    }
+
+    private void pullOut(Item item){
+
+    }
+}
+
+abstract class Item{
+    private int price;
+    private String name;
+
+    public Item(int price, String name) {
+        this.price = price;
+        this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class Beverage extends Item{
+
+    public Beverage(int price, String name) {
+        super(price, name);
+    }
+}
+
+interface VendingMachineState{
+
+}
+
+class AvailablePullOut implements VendingMachineState{
+    private VendingMachine vendingMachine;
+
+    public AvailablePullOut(VendingMachine vendingMachine) {
+        this.vendingMachine = vendingMachine;
+    }
+}
+
+class NotEnoughMoney implements VendingMachineState{
+    private VendingMachine vendingMachine;
+
+    public NotEnoughMoney(VendingMachine vendingMachine) {
+        this.vendingMachine = vendingMachine;
+    }
+}
+
+class NotEnoughStuff implements VendingMachineState{
+    private VendingMachine vendingMachine;
+
+    public NotEnoughStuff(VendingMachine vendingMachine) {
+        this.vendingMachine = vendingMachine;
+    }
+
+}
+
+class NotEnoughBoth implements VendingMachineState{
+    private VendingMachine vendingMachine;
+
+    public NotEnoughBoth(VendingMachine vendingMachine) {
+        this.vendingMachine = vendingMachine;
     }
 }
 

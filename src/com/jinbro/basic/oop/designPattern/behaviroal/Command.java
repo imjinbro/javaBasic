@@ -15,6 +15,27 @@ class CommandExam{
 
         btn.setTarget(new Alarm());
         btn.press();
+
+
+        TV tv = new TV();
+        Command power = new PowerCommand(tv);
+        Command mute = new MuteCommand(tv);
+
+        TwoButtonController controller = new TwoButtonController(power, mute);
+        controller.setButton2Command(power);
+        controller.button1Pressed();
+        controller.button1Pressed();
+        controller.button2Pressed();
+        controller.button1Pressed();
+
+        controller.setButton1Command(mute);
+        controller.setButton2Command(power);
+        controller.button1Pressed();
+        controller.button2Pressed();
+        controller.button1Pressed();
+        controller.button1Pressed();
+        controller.button2Pressed();
+        controller.button1Pressed();
     }
 }
 
@@ -80,5 +101,86 @@ class Button{
 
     public void press(){
         target.execute();
+    }
+}
+
+/***************** 연습문제 *****************/
+//중간 컨트롤러 + 커맨드(실제 TV 컨트롤 - 동작) + TV(컨트롤 대상) 형태
+class TwoButtonController{
+    private Command c1;
+    private Command c2;
+
+    public TwoButtonController(Command c1, Command c2) {
+        this.c1 = c1;
+        this.c2 = c2;
+    }
+
+    public void setButton1Command(Command c1){
+        this.c1 = c1;
+    }
+
+    public void setButton2Command(Command c2){
+        this.c2 = c2;
+    }
+
+    public void button1Pressed(){
+        c1.execute();
+    }
+
+    public void button2Pressed(){
+        c2.execute();
+    }
+}
+
+class MuteCommand implements Command{
+    private TV tv;
+
+    public MuteCommand(TV tv) {
+        this.tv = tv;
+    }
+
+    @Override
+    public void execute() {
+        tv.mute();
+    }
+}
+
+class PowerCommand implements Command{
+    private TV tv;
+
+    public PowerCommand(TV tv) {
+        this.tv = tv;
+    }
+
+    @Override
+    public void execute() {
+        tv.power();
+    }
+}
+
+class TV{
+    private boolean mute;
+    private boolean power;
+
+    public TV() {
+        mute = false;
+        power = false;
+    }
+
+    public void mute(){
+        if(!power){
+            return;
+        }
+        mute = !mute;
+        System.out.println("음소거 " + mute);
+    }
+
+    public void power(){
+        power = !power;
+        if(power){
+            System.out.println("파워 ON");
+        } else {
+            System.out.println("파워 OFF");
+        }
     }
 }

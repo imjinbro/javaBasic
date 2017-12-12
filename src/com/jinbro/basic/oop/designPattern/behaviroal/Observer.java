@@ -141,7 +141,211 @@ class StaticsView implements Observer{
     }
 }
 
+/******************* 연습문제 ******************/
+class Notifier{
+    public static void main(String[] args) {
+        Battery battery = new Battery();
+        BatteryStatusDisplay statusDisplay = new BatteryStatusDisplay(battery);
+        BatteryWarningDisplay warningDisplay = new BatteryWarningDisplay(battery);
 
+        battery.attach(statusDisplay);
+        battery.attach(warningDisplay);
+
+        while(battery.getAmount() > 0){
+            battery.consume(10);
+        }
+    }
+
+    private List<BatteryObserver>  batteryObserverList = new ArrayList<>();
+
+    public void attach(BatteryObserver observer){
+        batteryObserverList.add(observer);
+    }
+
+    public void detach(BatteryObserver observer){
+        if(batteryObserverList.contains(observer)){
+            batteryObserverList.remove(observer);
+        }
+    }
+
+    public void notifyBatteryObserver(){
+        for(BatteryObserver observer : batteryObserverList){
+            observer.update();
+        }
+    }
+}
+
+class Battery extends Notifier{ //알림이를 확장한 클래스(배터리)
+    private int amount;
+
+    public Battery() {
+        this.amount = 100;
+    }
+
+    public void consume(int amount){
+        if(this.amount-amount < 0){
+            this.amount = 0;
+        } else {
+            this.amount -= amount;
+        }
+        notifyBatteryObserver();
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+}
+
+interface BatteryObserver{
+    void update();
+}
+
+class BatteryStatusDisplay implements BatteryObserver{
+    private Battery battery;
+
+    public BatteryStatusDisplay(Battery battery) {
+        this.battery = battery;
+    }
+
+    @Override
+    public void update() {
+        displayBatteryStatus(battery.getAmount());
+    }
+
+    private void displayBatteryStatus(int amount){
+        System.out.println("배터리 잔량 : " + amount);
+    }
+}
+
+class BatteryWarningDisplay implements BatteryObserver{
+    private Battery battery;
+    private static final int WARING_STANDARD = 20;
+
+    public BatteryWarningDisplay(Battery battery) {
+        this.battery = battery;
+    }
+
+    @Override
+    public void update() {
+        displayBatterWarning(battery.getAmount());
+    }
+
+    private void displayBatterWarning(int amount){
+        if(amount <= WARING_STANDARD){
+            System.out.println("배터리 충전 필요 : " + amount + "(잔량)");
+        }
+    }
+}
+
+class ElevatorNotifier{
+    private List<ElevatorObserver> observerList = new ArrayList<>();
+
+    public void attach(ElevatorObserver observer){
+        observerList.add(observer);
+    }
+
+    public void detach(ElevatorObserver observer){
+        if(observerList.contains(observer)){
+            observerList.remove(observer);
+        }
+    }
+
+    public void notifyElvatorObserver(){
+        for(ElevatorObserver observer : observerList){
+            observer.update();
+        }
+    }
+}
+
+class ElevatorController extends ElevatorNotifier{
+    private int floor = 1;
+
+    public void gotoFloor(int floor){
+        if(getCurrentFloor() != floor){
+            this.floor = floor;
+            notifyElvatorObserver();
+        }
+    }
+
+    public int getCurrentFloor() {
+        return floor;
+    }
+}
+
+interface ElevatorObserver{
+    void update();
+}
+
+class ElevatorVoiceNotice implements ElevatorObserver{
+    private ElevatorController elevator;
+
+    public ElevatorVoiceNotice(ElevatorController elevator) {
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void update() {
+        noticeElevatorFloor(elevator.getCurrentFloor());
+    }
+
+    private void noticeElevatorFloor(int floor){
+
+    }
+}
+
+class ElevatorDisplay implements ElevatorObserver{
+    private ElevatorController elevator;
+
+    public ElevatorDisplay(ElevatorController elevator) {
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void update() {
+        displayCurrentElevatorFloor(elevator.getCurrentFloor());
+    }
+
+    private void displayCurrentElevatorFloor(int floor){
+
+    }
+}
+
+class ElevatorInnerDisplay implements ElevatorObserver{
+    private ElevatorController elevator;
+
+    public ElevatorInnerDisplay(ElevatorController elevator) {
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void update() {
+        displayElevatorFloor(elevator.getCurrentFloor());
+    }
+
+    private void displayElevatorFloor(int floor){
+
+    }
+}
+
+class ElevatorControlRoomDisplay implements ElevatorObserver{
+    private ElevatorController elevator;
+
+    public ElevatorControlRoomDisplay(ElevatorController elevator) {
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void update() {
+        displayElevatorStatus(elevator.getCurrentFloor());
+    }
+
+    private void displayElevatorStatus(int floor){
+
+    }
+}
+
+
+/*********************************************************/
 
 /*
 [기존 코드]

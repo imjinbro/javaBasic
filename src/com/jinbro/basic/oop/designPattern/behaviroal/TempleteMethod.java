@@ -1,5 +1,8 @@
 package com.jinbro.basic.oop.designPattern.behaviroal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TempleteMethod { }
 
 /*
@@ -142,8 +145,6 @@ class Door{
     }
 }
 
-
-
 enum Direction{
     UP,
     DOWN
@@ -157,5 +158,177 @@ enum MotorStatus{
 enum DoorStatus{
     OPENED,
     CLOSED
+}
+
+
+/*
+    [템플릿 메서드 패턴 연습문제]
+    - 리포트 생성 여러가지일 때 어떻게 할 것인가? : 공통되는 부분과 다른 부분 처리
+    - 리포트 IO 여러가지 방법에 대해서는 고려하지않음
+*/
+class Customer{
+    private String name;
+    private int score;
+
+    public Customer(String name) {
+        this.name = name;
+        this.score = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void addScore(int score){
+        setScore(score);
+    }
+
+    private void setScore(int score) {
+        this.score += score;
+    }
+}
+
+class CustomerAdmin {
+    public static void main(String[] args) {
+        Customer customer1 = new Customer("jinhyung");
+        Customer customer2 = new Customer("jinbro");
+
+        ComplexReportGenerator complexReportGenerator = new ComplexReportGenerator();
+        SimpleReportGenerator simpleReportGenerator = new SimpleReportGenerator();
+
+        CustomerAdmin admin = CustomerAdmin.getAdmin();
+        admin.addCustomer(customer1);
+        admin.addCustomer(customer2);
+
+        admin.getReportAboutCustomer(); //제너레이터를 설정하지않고 리포트를 요청할 경우 설정 메세지 출력
+
+        System.out.println("=============");
+
+        /* 점수 합계 리포트 */
+        admin.setReportGenerator(complexReportGenerator);
+        admin.getReportAboutCustomer();
+
+        System.out.println("=============");
+
+        /* 일반 리포트 */
+        admin.setReportGenerator(simpleReportGenerator);
+        admin.getReportAboutCustomer();
+    }
+
+    private ReportGenerator reportGenerator; //계속해서 변경됨
+    private ArrayList<Customer> customerList = new ArrayList<>();
+    private static CustomerAdmin admin = new CustomerAdmin();
+
+    private CustomerAdmin(){}
+
+    public static CustomerAdmin getAdmin() {
+        return admin;
+    }
+
+    public void addCustomer(Customer customer){
+        if(NullProcessor.isNull(customer)){
+            NullProcessor.process("고객 정보가 잘못됨");
+        }
+
+        if(isExistCustomer(customer)){
+            System.out.println("이미 추가된 고객입니다");
+            return;
+        }
+
+        customerList.add(customer);
+    }
+
+    public void removeCustomer(Customer customer){
+        if(NullProcessor.isNull(customer)){
+            NullProcessor.process("고객 정보가 잘못됨");
+        }
+
+        if(!isExistCustomer(customer)){
+            System.out.println("존재하지않는 고객입니다.");
+            return;
+        }
+        customerList.remove(customer);
+    }
+
+    public void setReportGenerator(ReportGenerator reportGenerator){
+        this.reportGenerator = reportGenerator;
+    }
+
+    public void getReportAboutCustomer(){
+        if(NullProcessor.isNull(reportGenerator)){
+            System.out.println("리포트 제너레이터를 설정해주세요");
+            return;
+        }
+
+        System.out.println(reportGenerator.generate(getCustomerList()));
+    }
+
+    private ArrayList<Customer> getCustomerList() {
+        return customerList;
+    }
+
+    private boolean isExistCustomer(Customer customer){
+        return customerList.contains(customer);
+    }
+}
+
+
+
+abstract class ReportGenerator{
+    public String generate(List<Customer> customerList){
+        /* 공통된 부분 */
+        StringBuilder builder = new StringBuilder();
+        builder.append("고객 수 : ").append(customerList.size()).append("\n");
+
+        for(Customer customer : customerList){
+            builder.append(customer.getName())
+                .append(" : ")
+                .append(customer.getScore())
+                .append("\n");
+        }
+        builder.append(specialReport(customerList));
+
+        return builder.toString();
+    }
+
+    abstract public String specialReport(List<Customer> customerList);
+}
+
+class SimpleReportGenerator extends ReportGenerator{
+
+    @Override
+    public String specialReport(List<Customer> customerList) {
+        return "";
+    }
+}
+
+class ComplexReportGenerator extends ReportGenerator{
+
+    @Override
+    public String specialReport(List<Customer> customerList) {
+        StringBuilder builder = new StringBuilder();
+        int scoreSum = 0;
+        for(Customer customer : customerList){
+            scoreSum += customer.getScore();
+        }
+        builder.append("점수 합계 : ")
+               .append(scoreSum);
+        return builder.toString();
+    }
+}
+
+class NullProcessor{
+
+    public static boolean isNull(Object obj){
+        return obj == null;
+    }
+
+    public static void process(String msg){
+        throw new NullPointerException(msg);
+    }
 }
 

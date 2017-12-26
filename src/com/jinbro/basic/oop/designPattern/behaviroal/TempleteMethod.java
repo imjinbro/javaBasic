@@ -332,3 +332,140 @@ class NullProcessor{
     }
 }
 
+
+
+/* [템플릿메서드 연습문제2]
+   - 팩토리메서드로 풀었던 문제를 템플릿메서드 방식으로 풀어봄
+   - 같은 곳은 같은대로 다른 곳만 각각 구현해서 호출만 똑같이
+ */
+
+class ElevatorCtrl{
+    private int id;
+    private int floor;
+
+    public ElevatorCtrl(int id) {
+        this.id = id;
+        this.floor = 1; //기본 1층
+    }
+
+    public void gotoFloor(int floor){
+        setFloor(floor);
+    }
+
+    private void setFloor(int floor) {
+        /* 상태에 따라 처리하도록 */
+        this.floor = floor;
+        System.out.println("[" + id + "] : " + floor + "로 이동되었습니다.");
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+
+interface ElevatorScheduler{
+    int selectElevatorCtrl(ElevatorManager manager, int destination, Course course);
+}
+
+class ThroughputScheduler implements ElevatorScheduler{
+    private static ThroughputScheduler scheduler = new ThroughputScheduler();
+    private ThroughputScheduler(){}
+
+    public static ThroughputScheduler getScheduler(){
+        return scheduler;
+    }
+
+    /* 변경사항이 많을 부분 */
+    @Override
+    public int selectElevatorCtrl(ElevatorManager manager, int destination, Course course){ //return elevatorctrl id
+        ArrayList<ElevatorCtrl> controllers = manager.getCtrlList();
+        if(!isExistCtrl(controllers)){
+            throw new RuntimeException("제어 중인 엘리베이터가 없습니다");
+        }
+
+        System.out.println("Throughput");
+        return 0;
+    }
+
+    private boolean isExistCtrl(ArrayList<?> controllerList){
+        return controllerList.size() != 0;
+    }
+}
+
+class ResponseTimeScheduler implements ElevatorScheduler {
+    private static ResponseTimeScheduler scheduler = new ResponseTimeScheduler();
+    private ResponseTimeScheduler(){}
+
+    public static ResponseTimeScheduler getScheduler() {
+        return scheduler;
+    }
+
+    @Override
+    public int selectElevatorCtrl(ElevatorManager manager, int destination, Course course) {
+        System.out.println("responseTime");
+        return 0;
+    }
+}
+
+
+abstract class ElevatorManager{
+    private ArrayList<ElevatorCtrl> ctrlList = new ArrayList<>();
+
+    public ElevatorManager(int ctrlNum){
+        initCtrl(ctrlNum);
+    }
+
+    private void initCtrl(int ctrlNum){
+        for(int i=0; i<ctrlNum; i++){
+            ctrlList.add(new ElevatorCtrl(i));
+        }
+    }
+
+    abstract public ElevatorScheduler getScheduler();
+
+    public void requestElevator(int destination, Course course){
+        ElevatorScheduler scheduler = getScheduler();
+        int ctrlElevatorId = scheduler.selectElevatorCtrl(this, destination, course);
+
+        ElevatorCtrl elevatorController = ctrlList.get(ctrlElevatorId);
+        elevatorController.gotoFloor(destination);
+    }
+
+    public ArrayList<ElevatorCtrl> getCtrlList(){
+        return ctrlList;
+    }
+}
+
+class ElevatorManagerWithThroughScheduling extends ElevatorManager {
+    public ElevatorManagerWithThroughScheduling(int ctrlNum) {
+        super(ctrlNum);
+    }
+
+    @Override
+    public ElevatorScheduler getScheduler() {
+        /* 자기만의 스케쥴러 */
+        ElevatorScheduler scheduler = ThroughputScheduler.getScheduler();
+        return scheduler;
+    }
+}
+
+class ElevatorManagerWithResponseTimeScheduling extends ElevatorManager {
+    public ElevatorManagerWithResponseTimeScheduling(int ctrlNum) {
+        super(ctrlNum);
+    }
+
+    @Override
+    public ElevatorScheduler getScheduler() {
+        ElevatorScheduler scheduler = ResponseTimeScheduler.getScheduler();
+        return scheduler;
+    }
+}
+
+enum Course{
+    UP,
+    DOWN
+}

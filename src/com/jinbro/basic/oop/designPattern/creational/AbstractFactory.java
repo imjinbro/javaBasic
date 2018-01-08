@@ -6,13 +6,9 @@ package com.jinbro.basic.oop.designPattern.creational;
     - 여러가지 방식이 아니라 일관성있게 인스턴스를 생성한다면 오히려 코드만 더 증가하는 꼴 : switch case 증가
 
     [추상팩토리 패턴 설계]
-    - 각 부품별로 팩토리를 만들지않고 벤더별로 팩토리를 만들 수 있게 최상위 개념의 팩토리를 만든 후 벤더별 구현하도록 함
-    - 벤더가 추가될 때 해당 벤더 팩토리만 만들면 됨
-    - 부품이 추가된다면 팩토리 최상위에 해당 부품 생성 메서드를 abstract로 선언해두고 각 팩토리에서 벤더에 맞게 구현
-
-    - 깔끔한 관리랄까... 변경 적용할 때 위험성을 줄이는 패턴이랄까
-    - 팩토리메서드 단점을 채워주는 패턴
-
+    - 하나의 팩토리를 통해서(ID값만 던져주고 팩토리를 얻어오면) create부품()메서드로 얻어올 수 있음
+    - 필요에 따라 팩토리를 변경해서 다른 것을 가져올 수도 있음
+    - 일관된 인터페이스랄까...?
  */
 public class AbstractFactory {
     public static void main(String[] args) {
@@ -287,3 +283,202 @@ class SAMSUNGElevatorDoor extends ElevatorDoor{
         System.out.println("SAMSUNG Door Close");
     }
 }
+
+
+
+/***************** 연습문제 : 일관된 인터페이스로 만들기 요청(ID값만 주면 하나의 인스턴스에서 원하는 부품 얻을 수 있음) *****************/
+class Navi{
+    //NaviFactory 하나의 사용 예시 : naviID만 다르게 주면 각각의 부품을 요청할 수 있음
+    private GPS gps;
+    private PathFinder pathFinder;
+    private Screen screen;
+
+    public Navi(NaviID naviID) {
+        initNavi(naviID);
+    }
+
+    private void initNavi(NaviID naviID){
+        NaviFactory factory = NaviFactory.getFactory(naviID);
+        gps = factory.createGPS();
+        pathFinder = factory.createPathFinder();
+        screen = factory.createScreen();
+    }
+}
+
+enum NaviID{
+    TEST,
+    CHEAP,
+    EXPENSIVE
+}
+
+/*  새로운 모델이 생겼을 때 일일이 부품별로 ID 대응을 하지않고(switch) 추상팩토리에서만 대응해주면 됨
+    public Screen createScreen(NaviID naviID){
+            Screen screen = null;
+            switch(naviID){
+                case CHEAP:
+
+                    break;
+
+                case EXPENSIVE:
+
+                    break;
+
+                //추가되면 추가되는대로 부품별로 모두 추가해줘야함
+            }
+
+            return screen;
+        }
+*/
+abstract class NaviFactory{
+    public static NaviFactory getFactory(NaviID naviID){
+        NaviFactory factory = null;
+        switch (naviID){
+            case CHEAP:
+                factory = CheapNaviFactory.getInstance();
+                break;
+
+            case EXPENSIVE:
+                factory = ExpensiveNaviFactory.getInstance();
+                break;
+
+            case TEST:
+                factory = TestNaviFactory.getInstance();
+                break;
+        }
+
+        return factory;
+    }
+
+    public abstract PathFinder createPathFinder();
+    public abstract GPS createGPS();
+    public abstract Screen createScreen();
+}
+
+class CheapNaviFactory extends NaviFactory{
+    private static CheapNaviFactory factory = new CheapNaviFactory();
+    private CheapNaviFactory(){}
+
+    public static CheapNaviFactory getInstance() {
+        return factory;
+    }
+
+
+    @Override
+    public PathFinder createPathFinder() {
+        return new CheapPathFinder();
+    }
+
+    @Override
+    public GPS createGPS() {
+        return new CheapGPS();
+    }
+
+    @Override
+    public Screen createScreen() {
+        return new SDScreen();
+    }
+}
+
+class ExpensiveNaviFactory extends NaviFactory{
+    private static ExpensiveNaviFactory factory = new ExpensiveNaviFactory();
+    private ExpensiveNaviFactory(){}
+
+    public static ExpensiveNaviFactory getInstance() {
+        return factory;
+    }
+
+
+    @Override
+    public PathFinder createPathFinder() {
+        return new ExpensivePathFinder();
+    }
+
+    @Override
+    public GPS createGPS() {
+        return new ExpensiveGPS();
+    }
+
+    @Override
+    public Screen createScreen() {
+        return new HDScreen();
+    }
+}
+
+class TestNaviFactory extends NaviFactory{
+    private static TestNaviFactory factory = new TestNaviFactory();
+    private TestNaviFactory(){}
+
+    public static TestNaviFactory getInstance() {
+        return factory;
+    }
+
+
+    @Override
+    public PathFinder createPathFinder() {
+        return new TestPathFinder();
+    }
+
+    @Override
+    public GPS createGPS() {
+        return new TestGPS();
+    }
+
+    @Override
+    public Screen createScreen() {
+        return new TestScreen();
+    }
+}
+
+
+
+abstract class PathFinder{
+
+}
+
+class CheapPathFinder extends PathFinder{
+
+}
+
+class ExpensivePathFinder extends PathFinder{
+
+}
+
+class TestPathFinder extends PathFinder{
+
+}
+
+
+abstract class Screen{
+
+}
+
+class SDScreen extends Screen{
+
+}
+
+class HDScreen extends Screen{
+
+}
+
+class TestScreen extends Screen{
+
+}
+
+
+abstract class GPS{
+
+}
+
+class CheapGPS extends GPS{
+
+}
+
+class ExpensiveGPS extends GPS{
+
+}
+
+class TestGPS extends GPS{
+
+}
+
+

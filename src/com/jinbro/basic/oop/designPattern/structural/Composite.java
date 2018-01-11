@@ -14,7 +14,7 @@ import java.util.List;
     - 컴포넌트의 종류가 늘어나더라도(확장) 전체(whole)의 코드는 변경되지않음
     - 전체(whole)도 component로 넣어서 동일 인터페이스로 클라이언트에서 요청할 수 있게하자는 것이 책 내용인데 일단 적용은 안함
  */
-public class Composition {
+public class Composite {
     public static void main(String[] args) {
         Computer computer = new Computer();
         computer.addComponent(new Keyboard(5000, 100));
@@ -126,5 +126,114 @@ class Monitor extends ComputerComponent{
     @Override
     protected int getComponentPower(int power) {
         return power;
+    }
+}
+
+/***************** 연습문제 : 파일, 디렉토리 모두 디렉토리에 저장될 수 있는데 각각 만들면 각각 메서드를 만들어야함;;; *****************/
+/* component */
+abstract class Savable{
+    private String name;
+    private int size;
+    private int depth = 0;
+
+    public Savable(String name, int size){
+        if(isInvalidName(name) || isInvalidSize(size)){
+            throw new IllegalArgumentException();
+        }
+
+        this.name = name;
+        this.size = size;
+    }
+
+    private boolean isInvalidName(String name){
+        return name.isEmpty() || name == null;
+    }
+
+    private boolean isInvalidSize(int size){
+        return size < 0;
+    }
+
+    public int getSize(){
+        return size;
+    }
+
+    public int getDepth(){
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        if(isInVaildDepth(depth)){
+            return;
+        }
+        this.depth = depth;
+    }
+
+    protected boolean isInVaildDepth(int depth){
+        return depth < 0;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    protected abstract String getClassName();
+    public String getInfo() {
+        return getClassName() + "{name='" + name + '\'' + ", size=" + size + ", depth=" + depth + '}';
+    }
+}
+
+/* part(leaf) */
+class File extends Savable{
+    public File(String name, int size) {
+        super(name, size);
+    }
+
+    @Override
+    protected String getClassName() {
+        return getClass().getSimpleName();
+    }
+}
+
+/* whole(composite) */
+class Directory<T extends Savable> extends Savable{
+    private List<T> entries = new ArrayList<>();
+
+    public Directory(String name, int size) {
+        super(name, size);
+    }
+
+    private boolean isExistEntry(T entry){
+        return entries.contains(entry);
+    }
+
+    @Override
+    protected boolean isInVaildDepth(int depth) {
+        return getDepth() <= depth;
+    }
+
+    public void addEntry(T entry){
+        if(isExistEntry(entry) || isInVaildDepth(entry.getDepth())){
+            return;
+        }
+        entries.add(entry);
+    }
+
+    public void removeEntry(T entry){
+        if(!isExistEntry(entry)){
+            return;
+        }
+        entries.remove(entry);
+    }
+
+    @Override
+    public int getSize() {
+        return entries.stream()
+                      .mapToInt(Savable::getSize)
+                      .sum();
+    }
+
+    @Override
+    protected String getClassName() {
+        return getClass().getSimpleName();
     }
 }

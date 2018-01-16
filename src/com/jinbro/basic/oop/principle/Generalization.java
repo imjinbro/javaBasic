@@ -77,4 +77,39 @@ class OrdinaryNonLocal extends Member{
 
 
 
+class Song {
+    private int price;
+    private SaleMode mode;
+
+
+    public Song(int price, SaleMode mode) {
+        this.price = price;
+        this.mode = mode;
+    }
+
+    public int getPrice(){
+        return mode.calculator(price);
+    }
+}
+
+abstract class SaleMode{
+    abstract int calculator(int price);
+}
+
+class OnSale extends SaleMode{
+
+    @Override
+    int calculator(int price) {
+        return (int)(price * 0.1);
+    }
+}
+
+class TodayEvent extends SaleMode {
+
+    @Override
+    int calculator(int price) {
+        return (int)(price * 0.3);
+    }
+}
+
 
